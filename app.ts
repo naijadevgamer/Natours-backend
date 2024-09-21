@@ -6,7 +6,15 @@ const app: Application = express();
 
 app.use(express.json());
 
-const tours = JSON.parse(
+type Tours = {
+  id: number;
+  name: string;
+  difficulty: string;
+  duration: 5;
+  description: string;
+};
+
+const tours: Tours[] = JSON.parse(
   fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`, 'utf-8')
 );
 
@@ -21,8 +29,28 @@ app.get('/api/v1/tours', (req, res) => {
 });
 
 app.post('/api/v1/tours', (req, res) => {
-  console.log(req.body);
-  res.status(200).send('Done');
+  const id = tours.length - 1 + 1;
+
+  const obj = Object.assign({ id }, req.body);
+  tours.push(obj);
+
+  console.log(obj);
+
+  fs.writeFile(
+    `${__dirname}/dev-data/data/tours-simple.json`,
+    JSON.stringify(tours),
+    () => {
+      res.status(201).json({
+        status: 'success',
+        results: tours.length,
+        data: {
+          tours,
+        },
+      });
+    }
+  );
+
+  // res.status(200).send('Done');
 });
 
 const port: number = 3000;
