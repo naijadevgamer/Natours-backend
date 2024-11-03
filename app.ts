@@ -126,6 +126,38 @@ const deleteTour = (req: Request, res: Response): any => {
   });
 };
 
+// Get tours route handler
+const getAllUsers = (req: Request, res: Response) => {
+  return res.status(500).json({
+    status: 'error',
+    messge: 'This route is not yet defined',
+  });
+};
+const getUser = (req: Request, res: Response) => {
+  return res.status(500).json({
+    status: 'error',
+    messge: 'This route is not yet defined',
+  });
+};
+const createUser = (req: Request, res: Response) => {
+  return res.status(500).json({
+    status: 'error',
+    messge: 'This route is not yet defined',
+  });
+};
+const updateUser = (req: Request, res: Response) => {
+  return res.status(500).json({
+    status: 'error',
+    messge: 'This route is not yet defined',
+  });
+};
+const deleteUser = (req: Request, res: Response) => {
+  return res.status(500).json({
+    status: 'error',
+    messge: 'This route is not yet defined',
+  });
+};
+
 // // Get tours
 // app.get('/api/v1/tours', getAllTours);
 // // Post tours
@@ -137,13 +169,38 @@ const deleteTour = (req: Request, res: Response): any => {
 // // Delete tour
 // app.patch('/api/v1/tours/:id', deleteTour);
 
-// More efficient way to handle routes
-app.route('/api/v1/tours').get(getAllTours).post(createTour);
-app
-  .route('/api/v1/tours/:id')
-  .get(getTour)
-  .patch(updateTour)
-  .delete(deleteTour);
+// // More efficient way to handle routes
+// // Tours
+// app.route('/api/v1/tours').get(getAllTours).post(createTour);
+// app
+//   .route('/api/v1/tours/:id')
+//   .get(getTour)
+//   .patch(updateTour)
+//   .delete(deleteTour);
+
+// // Users
+// app.route('/api/v1/users').get(getAllUsers).post(createUser);
+// app
+//   .route('/api/v1/users/:id')
+//   .get(getUser)
+//   .patch(updateUser)
+//   .delete(deleteUser);
+
+// Handle routes using middleware
+const tourRouter = express.Router();
+const userRouter = express.Router();
+
+// Tours
+tourRouter.route('/').get(getAllTours).post(createTour);
+tourRouter.route('/:id').get(getTour).patch(updateTour).delete(deleteTour);
+
+// Users
+userRouter.route('/').get(getAllUsers).post(createUser);
+userRouter.route('/:id').get(getUser).patch(updateUser).delete(deleteUser);
+
+// Mount routes
+app.use('/api/v1/tours', tourRouter);
+app.use('/api/v1/users', userRouter);
 
 const port: number = 3000;
 
