@@ -20,10 +20,20 @@ export const checkId = (
   next: NextFunction,
   val: string
 ) => {
-  console.log('ID:', val);
   if (+val > tours.length) {
     return res.status(404).json({
       status: 'Invalid ID',
+    });
+  }
+  return next();
+};
+
+// Param middleware handler to validate ID
+export const checkBody = (req: Request, res: Response, next: NextFunction) => {
+  if (!req.body.price || !req.body.name) {
+    return res.status(400).json({
+      status: 'failed',
+      messge: 'Missing name or price',
     });
   }
   return next();
