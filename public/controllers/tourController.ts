@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import fs from 'fs';
 
 type Tours = {
@@ -12,6 +12,22 @@ type Tours = {
 const tours: Tours[] = JSON.parse(
   fs.readFileSync(`${__dirname}/../../dev-data/data/tours-simple.json`, 'utf-8')
 );
+
+// Param middleware handler to validate ID
+export const checkId = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+  val: string
+) => {
+  console.log('ID:', val);
+  if (+val > tours.length) {
+    return res.status(404).json({
+      status: 'Invalid ID',
+    });
+  }
+  return next();
+};
 
 // __________Routes Handlers__________
 // Get tours route handler
@@ -51,15 +67,6 @@ export const createTour = (req: Request, res: Response) => {
 // Get tour route handler
 export const getTour = (req: Request, res: Response): any => {
   const tour = tours.find((tour) => tour.id === +req.params.id);
-
-  if (!tour) {
-    return res.status(404).json({
-      status: 'Not found',
-      data: {
-        tour,
-      },
-    });
-  }
   res.status(200).json({
     status: 'success',
     data: {
@@ -70,11 +77,6 @@ export const getTour = (req: Request, res: Response): any => {
 
 // Update tour route handler
 export const updateTour = (req: Request, res: Response): any => {
-  if (+req.params.id > tours.length) {
-    return res.status(404).json({
-      status: 'Invalid ID',
-    });
-  }
   res.status(200).json({
     status: 'success',
     data: {
@@ -85,11 +87,6 @@ export const updateTour = (req: Request, res: Response): any => {
 
 // Delete tour route handler
 export const deleteTour = (req: Request, res: Response): any => {
-  if (+req.params.id > tours.length) {
-    return res.status(404).json({
-      status: 'Invalid ID',
-    });
-  }
   res.status(204).json({
     status: 'success',
     data: {

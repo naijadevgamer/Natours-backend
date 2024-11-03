@@ -22,10 +22,6 @@ app.use(morgan('dev'));
 
 // Our own custom middlewares
 app.use((req: Request, res: Response, next) => {
-  console.log('Hello from the middleware 😄');
-  next();
-});
-app.use((req: Request, res: Response, next) => {
   req.requestTime = new Date().toISOString();
   next();
 });

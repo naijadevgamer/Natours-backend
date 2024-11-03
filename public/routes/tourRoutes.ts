@@ -5,10 +5,14 @@ import {
   getAllTours,
   getTour,
   updateTour,
+  checkId,
 } from '../controllers/tourController';
 
 // Handle routes using middleware
 const router = express.Router();
+
+// Param middleware
+router.param('id', checkId);
 
 // Tours
 router.route('/').get(getAllTours).post(createTour);
