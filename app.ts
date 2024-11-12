@@ -13,12 +13,19 @@ declare global {
       requestTime?: string;
     }
   }
+  namespace NodeJS {
+    interface ProcessEnv {
+      NODE_ENV: string;
+      PORT?: number;
+    }
+  }
 }
 
 app.use(express.json());
 app.use(express.static(`${__dirname}/public`));
+
 // Third party middleware
-app.use(morgan('dev'));
+if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 
 // Our own custom middlewares
 app.use((req: Request, res: Response, next) => {

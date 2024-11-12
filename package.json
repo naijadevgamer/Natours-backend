@@ -4,8 +4,8 @@
   "description": "learning nodejs, express, and mongodb",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon server.ts",
+    "prod": "NODE_ENV=production nodemon server.ts",
     "start": "node dist/index.js",
     "build": "npx tsc"
   },
@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/naijadevgamer/natours#readme",
   "dependencies": {
+    "dotenv": "^16.4.5",
     "express": "^4.21.0",
     "morgan": "^1.10.0"
   },
