@@ -34,13 +34,27 @@ export const createTour = async (req: Request, res: Response) => {
 };
 
 // Get tours route handler
-export const getAllTours = async (_req: Request, res: Response) => {
+export const getAllTours = async (req: Request, res: Response) => {
   try {
-    const tour = await Tour.find();
+    // BUILD QUERY
+    // 1A) Filtering
+    const objQuery = { ...req.query };
+    const excludedFields = ['page', 'sort', 'limit', 'fields'];
+    excludedFields.forEach((field) => delete objQuery[field]);
 
+    // 1B) Advance Filtering
+    let queryStr = JSON.stringify(objQuery);
+    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+    let query = Tour.find(JSON.parse(queryStr));
+    // console.log(req.query, objQuery, JSON.parse(queryStr));
+
+    // IMPLEMENT/EXECUTE QUERY
+    const tour = await query;
+
+    // SEND RESPONSE
     res.status(200).json({
       status: 'success',
-      results: Tour.length,
+      results: tour.length,
       data: {
         tour,
       },
