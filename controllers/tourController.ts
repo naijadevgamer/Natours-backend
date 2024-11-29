@@ -12,6 +12,20 @@ export const checkBody = (req: Request, res: Response, next: NextFunction) => {
   return next();
 };
 
+// Middleware handler for top 5 cheap tours
+export const handleTopCheap = (
+  req: Request,
+  _res: Response,
+  next: NextFunction
+) => {
+  req.query.page = '1';
+  req.query.limit = '5';
+  req.query.sort = 'price,-ratingsAverage';
+  req.query.fields = 'name,duration,difficulty,ratingsAverage,price';
+
+  next();
+};
+
 // __________Routes Handlers__________
 // Create tour route handler
 export const createTour = async (req: Request, res: Response) => {
