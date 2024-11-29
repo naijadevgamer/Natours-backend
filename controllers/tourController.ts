@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import Tour from '../Models/tourModel';
+import APIFeatures from '../utils/APIFeatures';
 
 // Middleware handler to check if there is body
 export const checkBody = (req: Request, res: Response, next: NextFunction) => {
@@ -51,54 +52,21 @@ export const createTour = async (req: Request, res: Response) => {
 export const getAllTours = async (req: Request, res: Response) => {
   try {
     // BUILD QUERY
-    // 1A) Filtering
-    const objQuery = { ...req.query };
-    const excludedFields = ['page', 'sort', 'limit', 'fields'];
-    excludedFields.forEach((field) => delete objQuery[field]);
-
-    // 1B) Advance Filtering
-    let queryStr = JSON.stringify(objQuery);
-    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
-    let query = Tour.find(JSON.parse(queryStr));
-    // console.log(req.query, objQuery, JSON.parse(queryStr));
-
-    // 2) Sorting
-    if (req.query.sort) {
-      const sortBy = (req.query.sort as string).split(',').join(' ');
-      query = query.sort(sortBy);
-    } else {
-      query = query.sort('createdAt');
-    }
-
-    // 3) Limiting fields
-    if (req.query.fields) {
-      const selectBy = (req.query.fields as string).split(',').join(' ');
-      query = query.select(selectBy);
-    } else {
-      query = query.select('-__v');
-    }
-
-    // 3) Pagination
-    const page = +(req.query.page as string) || 1;
-    const limit = +(req.query.limit as string) || 100;
-    const skip = (page - 1) * limit;
-
-    query = query.skip(skip).limit(limit);
-
-    if (req.query.page) {
-      const toursNum = await Tour.countDocuments();
-      if (skip >= toursNum) throw new Error('This page does not exist');
-    }
+    const features = new APIFeatures(Tour.find(), req.query)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
 
     // IMPLEMENT/EXECUTE QUERY
-    const tour = await query;
+    const tours = await features.query;
 
     // SEND RESPONSE
     res.status(200).json({
       status: 'success',
-      results: tour.length,
+      results: tours.length,
       data: {
-        tour,
+        tours,
       },
     });
   } catch (err) {
