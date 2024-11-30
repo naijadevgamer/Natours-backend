@@ -7,6 +7,7 @@ import {
   updateTour,
   checkBody,
   handleTopCheap,
+  getTourStats,
 } from '../controllers/tourController';
 
 // Handle routes using middleware
@@ -17,6 +18,9 @@ const router = express.Router();
 
 // Top 5 cheap tours route aliasing
 router.route('/top-5-cheap').get(handleTopCheap, getAllTours);
+
+// Top 5 cheap tours route aliasing
+router.route('/tour-stats').get(getTourStats);
 
 // Tours
 router.route('/').get(getAllTours).post(checkBody, createTour);
