@@ -8,6 +8,7 @@ import {
   checkBody,
   handleTopCheap,
   getTourStats,
+  getMonthlyPlan,
 } from '../controllers/tourController';
 
 // Handle routes using middleware
@@ -21,6 +22,10 @@ router.route('/top-5-cheap').get(handleTopCheap, getAllTours);
 
 // Top 5 cheap tours route aliasing
 router.route('/tour-stats').get(getTourStats);
+
+// Get monthly plans
+router.route('/monthly-plans').get(getMonthlyPlan);
+router.route('/monthly-plans/:year').get(getMonthlyPlan);
 
 // Tours
 router.route('/').get(getAllTours).post(checkBody, createTour);
