@@ -20,7 +20,7 @@ const router = express.Router();
 // Top 5 cheap tours route aliasing
 router.route('/top-5-cheap').get(handleTopCheap, getAllTours);
 
-// Top 5 cheap tours route aliasing
+// Get tour stats using aggregate
 router.route('/tour-stats').get(getTourStats);
 
 // Get monthly plans
