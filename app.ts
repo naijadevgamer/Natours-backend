@@ -1,8 +1,10 @@
-import express from 'express';
-import { Response, Request } from 'express';
+import express, { Response, Request, NextFunction } from 'express';
+import {} from 'express';
 import morgan from 'morgan';
 import tourRouter from './routes/tourRoutes';
 import userRouter from './routes/userRoutes';
+import AppError from './utils/appError';
+import globalErrorhandler from './controllers/errorController';
 
 declare global {
   namespace Express {
@@ -59,5 +61,13 @@ app.use((req: Request, _res: Response, next) => {
 // Mount routes
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
+
+// Handle all unmatched routes
+app.all('*', (req: Request, _res: Response, next: NextFunction) => {
+  next(new AppError(`Could not find ${req.originalUrl} on this server`, 404)); // Pass the error to the error-handling middleware
+});
+
+// Global error-handling middleware
+app.use(globalErrorhandler);
 
 export default app;
