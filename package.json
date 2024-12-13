@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "nodemon server.ts",
     "prod": "NODE_ENV=production nodemon server.ts",
+    "debug": "ndb server.ts",
     "start": "node dist/index.js",
     "build": "npx tsc"
   },
