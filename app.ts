@@ -1,10 +1,9 @@
 import express, { Response, Request, NextFunction } from 'express';
-import {} from 'express';
 import morgan from 'morgan';
 import tourRouter from './routes/tourRoutes';
 import userRouter from './routes/userRoutes';
 import AppError from './utils/appError';
-import globalErrorhandler from './controllers/errorController';
+import globalErrorHandler from './controllers/errorController';
 
 declare global {
   namespace Express {
@@ -68,6 +67,6 @@ app.all('*', (req: Request, _res: Response, next: NextFunction) => {
 });
 
 // Global error-handling middleware
-app.use(globalErrorhandler);
+app.use(globalErrorHandler);
 
 export default app;
