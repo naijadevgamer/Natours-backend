@@ -39,7 +39,6 @@ const sendErrorDev = (err: AppError, res: Response) => {
 
 const sendErrorProd = (err: AppError, res: Response) => {
   // Handles operational/trusted error: send message to client
-  console.log(err.isOperational);
   if (err.isOperational) {
     res.status(err.statusCode).json({
       status: err.status,
