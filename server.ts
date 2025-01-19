@@ -1,9 +1,12 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 dotenv.config({ path: './.env' });
+process.on('uncaughtException', (err: Error) => {
+  console.log(err.message);
+});
 import app from './app';
 
-main().catch((err) => console.log(err));
+main();
 
 async function main() {
   await mongoose.connect(
@@ -26,6 +29,15 @@ async function main() {
 
 const port: number = +process.env.PORT! || 3000;
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`App running on port ${port}...`);
 });
+
+process.on('unhandledRejection', (err: Error) => {
+  console.log(err.message);
+  server.close(() => {
+    process.exit(1);
+  });
+});
+
+// throw new Error('This is an uncaught exception');
