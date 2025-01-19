@@ -1,9 +1,12 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 dotenv.config({ path: './.env' });
-process.on('uncaughtException', (err: Error) => {
-  console.log(err.message);
-});
+
+process.env.NODE_ENV !== 'development' &&
+  process.on('uncaughtException', (err: Error) => {
+    console.log('uncaughtException', err.message);
+  });
+
 import app from './app';
 
 main();
@@ -34,7 +37,7 @@ const server = app.listen(port, () => {
 });
 
 process.on('unhandledRejection', (err: Error) => {
-  console.log(err.message);
+  console.log('unhandledRejection', err.message);
   server.close(() => {
     process.exit(1);
   });
