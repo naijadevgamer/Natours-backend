@@ -7,6 +7,7 @@ interface User extends Document {
   photoUrl: string;
   password: string;
   confirmPassword: string | undefined;
+  passwordChangedAt: Date;
 }
 
 interface UserMethods {
@@ -14,9 +15,10 @@ interface UserMethods {
     candidatePassword: string,
     userPassword: string
   ): Promise<boolean>;
+  changePasswordAfter(JWTTimestamp: number): boolean;
 }
 
-type UserDocument = Document & User & UserMethods;
+type UserDocument = User & UserMethods;
 
 const userSchema = new mongoose.Schema<
   UserDocument,
@@ -55,6 +57,7 @@ const userSchema = new mongoose.Schema<
       message: 'Password is not the same',
     },
   },
+  passwordChangedAt: Date,
 });
 
 userSchema.pre('save', async function (next) {
@@ -74,6 +77,21 @@ userSchema.methods.correctPassword = async function (
   userPassword: string
 ) {
   return await bcrypt.compare(candidatePassword, userPassword);
+};
+
+userSchema.methods.changePasswordAfter = function (JWTTimestamp: number) {
+  const changedTimestamp = parseInt(
+    String(this.passwordChangedAt?.getTime() / 1000),
+    10
+  );
+
+  if (this.passwordChangedAt) {
+    console.log(changedTimestamp, JWTTimestamp);
+
+    return JWTTimestamp < changedTimestamp;
+  }
+
+  return false;
 };
 
 // userSchema.post('save', function (_doc, next) {
