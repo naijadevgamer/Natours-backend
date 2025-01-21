@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, Model } from 'mongoose';
+import mongoose, { Document } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
 interface User extends Document {
@@ -9,7 +9,20 @@ interface User extends Document {
   confirmPassword: string | undefined;
 }
 
-const userSchema: Schema<User> = new mongoose.Schema({
+interface UserMethods {
+  correctPassword(
+    candidatePassword: string,
+    userPassword: string
+  ): Promise<boolean>;
+}
+
+type UserDocument = Document & User & UserMethods;
+
+const userSchema = new mongoose.Schema<
+  UserDocument,
+  mongoose.Model<UserDocument>,
+  UserMethods
+>({
   name: {
     type: String,
     required: [true, 'Name is required'],
@@ -30,6 +43,7 @@ const userSchema: Schema<User> = new mongoose.Schema({
     type: String,
     required: [true, 'Password is required'],
     minlength: [8, 'Password must not be less than 8 charcters'],
+    select: false,
   },
   confirmPassword: {
     type: String,
@@ -55,14 +69,20 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
+userSchema.methods.correctPassword = async function (
+  candidatePassword: string,
+  userPassword: string
+) {
+  return await bcrypt.compare(candidatePassword, userPassword);
+};
+
 // userSchema.post('save', function (_doc, next) {
 //   console.log(
 //     `Query took ${(Date.now() - (this as any).start) / 1000} seconds`
 //   );
-
 //   next();
 // });
 
-const User: Model<User> = mongoose.model<User>('User', userSchema);
+const User = mongoose.model<UserDocument>('User', userSchema);
 
 export default User;
