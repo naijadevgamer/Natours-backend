@@ -4,11 +4,13 @@ import tourRouter from './routes/tourRoutes';
 import userRouter from './routes/userRoutes';
 import AppError from './utils/appError';
 import globalErrorHandler from './controllers/errorController';
+import User from './Models/userModel';
 
 declare global {
   namespace Express {
     interface Request {
       requestTime?: string;
+      user?: User; // Add the user property to the Request interface
     }
   }
 }
