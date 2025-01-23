@@ -67,7 +67,6 @@ userSchema.pre('save', async function (next) {
   this.password = await bcrypt.hash(this.password, 12);
 
   this.confirmPassword = undefined; // remove confirm password field from the document before saving
-  // (this as any).start = Date.now();
 
   next();
 });
@@ -93,13 +92,6 @@ userSchema.methods.changePasswordAfter = function (JWTTimestamp: number) {
 
   return false;
 };
-
-// userSchema.post('save', function (_doc, next) {
-//   console.log(
-//     `Query took ${(Date.now() - (this as any).start) / 1000} seconds`
-//   );
-//   next();
-// });
 
 const User = mongoose.model<UserDocument>('User', userSchema);
 
