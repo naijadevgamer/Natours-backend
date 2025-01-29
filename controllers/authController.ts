@@ -23,7 +23,7 @@ const getAuthHeader = (req: Request): string => {
 
 export const signUp = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
-    const { name, email, password, confirmPassword, passwordChangedAt } =
+    const { name, email, password, confirmPassword, passwordChangedAt, role } =
       req.body;
     const newUser = await User.create({
       name,
@@ -31,6 +31,7 @@ export const signUp = catchAsync(
       password,
       confirmPassword,
       passwordChangedAt,
+      role,
     });
 
     const token = signToken(newUser._id);
@@ -115,5 +116,33 @@ export const protect = catchAsync(
     // 5) Grant access to protected routes
     req.user = currentUser;
     next();
+  }
+);
+
+export const restrictTo =
+  (...roles: string[]) =>
+  (req: Request, _res: Response, next: NextFunction) => {
+    if (!req.user) {
+      return next(new AppError('You are not logged in! Please log in.', 401));
+    }
+
+    if (!roles.includes(req.user.role)) {
+      return next(
+        new AppError('You do not have permission to perform this action!', 403)
+      );
+    }
+  };
+
+export const forgotPassword = catchAsync(
+  async (req: Request, _res: Response, next: NextFunction) => {
+    const user = await User.findOne({ email: req.body.email });
+
+    if (!user) {
+      return next(new AppError('No user found with that email.', 404));
+    }
+
+    // Generate random token
+    const resetToken = user.createPasswordResetToken();
+    await user.save({ validateBeforeSave: false });
   }
 );

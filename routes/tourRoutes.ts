@@ -10,6 +10,7 @@ import {
   getTourStats,
   getMonthlyPlan,
 } from '../controllers/tourController';
+import { protect, restrictTo } from '../controllers/authController';
 
 // Handle routes using middleware
 const router = express.Router();
@@ -29,6 +30,10 @@ router.route('/monthly-plans/:year').get(getMonthlyPlan);
 
 // Tours
 router.route('/').get(getAllTours).post(checkBody, createTour);
-router.route('/:id').get(getTour).patch(updateTour).delete(deleteTour);
+router
+  .route('/:id')
+  .get(getTour)
+  .patch(updateTour)
+  .delete(protect, restrictTo('admin', 'lead-guide'), deleteTour);
 
 export default router;

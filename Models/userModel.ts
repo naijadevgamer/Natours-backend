@@ -1,13 +1,17 @@
 import mongoose, { Document } from 'mongoose';
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 
 interface User extends Document {
   name: string;
   email: string;
+  role: string;
   photoUrl: string;
   password: string;
   confirmPassword: string | undefined;
   passwordChangedAt: Date;
+  passwordResetToken: string | undefined;
+  passwordResetExpires: Date | number;
 }
 
 interface UserMethods {
@@ -16,6 +20,7 @@ interface UserMethods {
     userPassword: string
   ): Promise<boolean>;
   changePasswordAfter(JWTTimestamp: number): boolean;
+  createPasswordResetToken(): string;
 }
 
 type UserDocument = User & UserMethods;
@@ -40,6 +45,14 @@ const userSchema = new mongoose.Schema<
       message: 'Enter a valid email address',
     },
   },
+  role: {
+    type: String,
+    enum: {
+      values: ['user', 'admin', 'lead-guide', 'guide'],
+      message: 'Role must be either user, admin, lead-guide, or guide',
+    },
+    default: 'user',
+  },
   photoUrl: String,
   password: {
     type: String,
@@ -58,6 +71,8 @@ const userSchema = new mongoose.Schema<
     },
   },
   passwordChangedAt: Date,
+  passwordResetToken: String,
+  passwordResetExpires: Number,
 });
 
 userSchema.pre('save', async function (next) {
@@ -91,6 +106,21 @@ userSchema.methods.changePasswordAfter = function (JWTTimestamp: number) {
   }
 
   return false;
+};
+
+userSchema.methods.createPasswordResetToken = function () {
+  const resetToken = crypto.randomBytes(32).toString('hex');
+
+  this.passwordResetToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+
+  console.log({ resetToken }, this.passwordResetToken);
+
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+
+  return resetToken;
 };
 
 const User = mongoose.model<UserDocument>('User', userSchema);
