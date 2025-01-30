@@ -11,7 +11,7 @@ interface User extends Document {
   confirmPassword: string | undefined;
   passwordChangedAt: Date;
   passwordResetToken: string | undefined;
-  passwordResetExpires: Date | number;
+  passwordResetExpires: Date;
 }
 
 interface UserMethods {
@@ -72,7 +72,7 @@ const userSchema = new mongoose.Schema<
   },
   passwordChangedAt: Date,
   passwordResetToken: String,
-  passwordResetExpires: Number,
+  passwordResetExpires: Date,
 });
 
 userSchema.pre('save', async function (next) {
@@ -118,7 +118,7 @@ userSchema.methods.createPasswordResetToken = function () {
 
   console.log({ resetToken }, this.passwordResetToken);
 
-  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+  this.passwordResetExpires = new Date(Date.now() + 10 * 60 * 1000);
 
   return resetToken;
 };

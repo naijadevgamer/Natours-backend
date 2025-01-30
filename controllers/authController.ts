@@ -143,6 +143,9 @@ export const forgotPassword = catchAsync(
 
     // Generate random token
     const resetToken = user.createPasswordResetToken();
+
     await user.save({ validateBeforeSave: false });
+
+    console.log(resetToken);
   }
 );
