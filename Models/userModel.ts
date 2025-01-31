@@ -11,7 +11,7 @@ interface User extends Document {
   confirmPassword: string | undefined;
   passwordChangedAt: Date;
   passwordResetToken: string | undefined;
-  passwordResetExpires: Date;
+  passwordResetExpires: Date | undefined;
 }
 
 interface UserMethods {
