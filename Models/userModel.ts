@@ -86,6 +86,15 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
+userSchema.pre('save', function (next) {
+  // sets the passwordChangedAt property for the user to the current date before saving the new password field to the current document
+  if (!this.isModified('password') || this.isNew) return next();
+
+  this.passwordChangedAt = new Date(Date.now() - 1000);
+
+  next();
+});
+
 userSchema.methods.correctPassword = async function (
   candidatePassword: string,
   userPassword: string
