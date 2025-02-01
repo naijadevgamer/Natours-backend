@@ -7,7 +7,7 @@ interface User extends Document {
   email: string;
   role: string;
   photoUrl: string;
-  password: string;
+  password: string | undefined;
   confirmPassword: string | undefined;
   passwordChangedAt: Date;
   passwordResetToken: string | undefined;
@@ -87,7 +87,7 @@ userSchema.pre('save', async function (next) {
   // checks if the password field in the current document has not been changed since it was last saved
   if (!this.isModified('password')) return next();
 
-  this.password = await bcrypt.hash(this.password, 12);
+  this.password = await bcrypt.hash(this.password as string, 12);
 
   this.confirmPassword = undefined; // remove confirm password field from the document before saving
 

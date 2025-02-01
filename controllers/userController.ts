@@ -18,8 +18,6 @@ export const getAllUsers = catchAsync(
   async (_req: Request, res: Response, _next) => {
     const users = await User.find();
 
-    console.log('Users', users);
-
     // SEND RESPONSE
     res.status(200).json({
       status: 'success',

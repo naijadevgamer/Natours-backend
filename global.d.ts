@@ -12,6 +12,7 @@ declare global {
       DB: string;
       JWT_SECRET: string;
       JWT_SECRET_EXPIRATION: string;
+      JWT_COOKIE_EXPIRATION: number;
       EMAIL_USERNAME: string;
       EMAIL_PASSWORD: string;
       EMAIL_HOST: string;
