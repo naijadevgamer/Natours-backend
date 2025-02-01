@@ -64,10 +64,11 @@ const userSchema = new mongoose.Schema<
     type: String,
     required: [true, 'Confirm password is required'],
     validate: {
+      // This only works on CREATE and SAVE!!
       validator: function (val) {
         return val === this.password;
       },
-      message: 'Password is not the same',
+      message: 'Passwords are not the same',
     },
   },
   passwordChangedAt: Date,
@@ -75,6 +76,7 @@ const userSchema = new mongoose.Schema<
   passwordResetExpires: Date,
 });
 
+// This only works on CREATE and SAVE!!
 userSchema.pre('save', async function (next) {
   // checks if the password field in the current document has not been changed since it was last saved
   if (!this.isModified('password')) return next();
@@ -86,6 +88,7 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
+// This only works on CREATE and SAVE!!
 userSchema.pre('save', function (next) {
   // sets the passwordChangedAt property for the user to the current date before saving the new password field to the current document
   if (!this.isModified('password') || this.isNew) return next();
