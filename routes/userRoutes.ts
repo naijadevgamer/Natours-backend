@@ -12,6 +12,7 @@ import {
   protect,
   resetPassword,
   signUp,
+  updatePassword,
 } from '../controllers/authController';
 
 const route = express.Router();
@@ -20,6 +21,7 @@ route.route('/signup').post(signUp);
 route.route('/login').post(login);
 route.route('/forgotPassword').post(forgotPassword);
 route.route('/resetPassword/:token').patch(resetPassword);
+route.route('/updatePassword').patch(protect, updatePassword);
 
 // Users
 route.route('/').get(protect, getAllUsers).post(createUser);

@@ -86,13 +86,17 @@ export const protect = catchAsync(
     let token;
     if (getAuthHeader(req) && getAuthHeader(req).startsWith('Bearer ')) {
       token = getAuthHeader(req).split(' ')[1];
+    } else {
+      return next(new AppError('Invalid token format', 401));
     }
 
     if (!token) {
       return next(new AppError('You are not logged in! Please log in.', 401));
     }
 
-    // console.log(req.headers, token);
+    console.log(req.headers);
+
+    console.log('Received token:', token);
 
     // 2) Token verification
     const jwtSecret = process.env.JWT_SECRET as string;
@@ -141,6 +145,8 @@ export const restrictTo =
         new AppError('You do not have permission to perform this action!', 403)
       );
     }
+
+    next();
   };
 
 export const forgotPassword = catchAsync(
@@ -218,21 +224,27 @@ export const resetPassword = catchAsync(async (req, res, next) => {
   createSendToken(user._id, 200, res);
 });
 
-// exports.updatePassword = catchAsync(async (req, res, next) => {
-//   // 1) Get user from collection
-//   const user = await User.findById(req.user.id).select('+password');
+export const updatePassword = catchAsync(async (req, res, next) => {
+  // 1) Get user from collection
+  if (!req.user) {
+    return next(new AppError('You are not logged in! Please log in.', 401));
+  }
+  const user = await User.findById(req.user.id).select('+password');
 
-//   // 2) Check if POSTed current password is correct
-//   if (!(await user.correctPassword(req.body.passwordCurrent, user.password))) {
-//     return next(new AppError('Your current password is wrong.', 401));
-//   }
+  // 2) Check if POSTed current password is correct
+  if (!user) {
+    return next(new AppError('No user found.', 404));
+  }
+  if (!(await user.correctPassword(req.body.passwordCurrent, user.password))) {
+    return next(new AppError('Your current password is wrong.', 401));
+  }
 
-//   // 3) If so, update password
-//   user.password = req.body.password;
-//   user.passwordConfirm = req.body.passwordConfirm;
-//   await user.save();
-//   // User.findByIdAndUpdate will NOT work as intended!
+  // 3) If so, update password
+  user.password = req.body.newPassword;
+  user.confirmPassword = req.body.confirmNewPassword;
+  await user.save();
+  // User.findByIdAndUpdate will NOT work as intended. You should know why, i guess!
 
-//   // 4) Log user in, send JWT
-//   createSendToken(user, 200, res);
-// });
+  // 4) Log user in, send JWT
+  createSendToken(user._id, 200, res);
+});
