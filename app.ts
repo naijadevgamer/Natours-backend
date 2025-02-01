@@ -5,6 +5,8 @@ import userRouter from './routes/userRoutes';
 import AppError from './utils/appError';
 import globalErrorHandler from './controllers/errorController';
 import User from './Models/userModel';
+import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
 
 declare global {
   namespace Express {
@@ -17,9 +19,26 @@ declare global {
 
 const app = express();
 
-// Extend the Request interface to include `requestTime`
+// 1) GLOBAL MIDDLEWARES
+// Set security HTTP headers
+app.use(helmet());
 
-app.use(express.json());
+// Limit requests from same API
+const limiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  limit: 2, // Limit each IP to 100 requests per `window` (here, per 1 hour).
+  standardHeaders: 'draft-8', // draft-6: `RateLimit-*` headers; draft-7 & draft-8: combined `RateLimit` header
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+  // store: ... , // Redis, Memcached, etc. See below.
+});
+
+// Apply the rate limiting middleware to all requests.
+app.use('/api', limiter);
+
+// Body parser, reading data from body into req.body
+app.use(express.json({ limit: '10kb' }));
+
+// Serving static files
 app.use(express.static(`${__dirname}/public`));
 
 // Third party middleware
