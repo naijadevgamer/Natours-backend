@@ -18,6 +18,8 @@ export const getAllUsers = catchAsync(
   async (_req: Request, res: Response, _next) => {
     const users = await User.find();
 
+    console.log('Users', users);
+
     // SEND RESPONSE
     res.status(200).json({
       status: 'success',
@@ -66,6 +68,19 @@ export const updateMe = catchAsync(
     });
   }
 );
+
+export const deleteMe = catchAsync(async (req, res, next) => {
+  if (!req.user) {
+    return next(new AppError('You are not logged in! Please log in.', 401));
+  }
+
+  await User.findByIdAndUpdate(req.user._id, { active: false });
+
+  res.status(204).json({
+    status: 'success',
+    data: null,
+  });
+});
 
 export const getUser = (_req: Request, res: Response) => {
   return res.status(500).json({

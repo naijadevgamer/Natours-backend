@@ -1,6 +1,7 @@
 import express from 'express';
 import {
   createUser,
+  deleteMe,
   deleteUser,
   getAllUsers,
   getUser,
@@ -24,6 +25,7 @@ route.route('/forgotPassword').post(forgotPassword);
 route.route('/resetPassword/:token').patch(resetPassword);
 route.route('/updatePassword').patch(protect, updatePassword);
 route.route('/updateMe').patch(protect, updateMe);
+route.route('/deleteMe').delete(protect, deleteMe);
 
 // Users
 route.route('/').get(protect, getAllUsers).post(createUser);

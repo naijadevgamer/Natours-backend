@@ -1,4 +1,4 @@
-import mongoose, { Document } from 'mongoose';
+import mongoose, { Document, Query } from 'mongoose';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 
@@ -12,6 +12,7 @@ interface User extends Document {
   passwordChangedAt: Date;
   passwordResetToken: string | undefined;
   passwordResetExpires: Date | undefined;
+  active: boolean;
 }
 
 interface UserMethods {
@@ -74,6 +75,11 @@ const userSchema = new mongoose.Schema<
   passwordChangedAt: Date,
   passwordResetToken: String,
   passwordResetExpires: Date,
+  active: {
+    type: Boolean,
+    default: true,
+    select: false,
+  },
 });
 
 // This only works on CREATE and SAVE!!
@@ -95,6 +101,12 @@ userSchema.pre('save', function (next) {
 
   this.passwordChangedAt = new Date(Date.now() - 1000);
 
+  next();
+});
+
+userSchema.pre<Query<any, UserDocument>>(/^find/, function (next) {
+  // Ensure `this` is properly typed as a Mongoose Query
+  this.find({ active: { $ne: false } });
   next();
 });
 
