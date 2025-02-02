@@ -7,6 +7,9 @@ import globalErrorHandler from './controllers/errorController';
 import User from './Models/userModel';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
+import ExpressMongoSanitize from 'express-mongo-sanitize';
+// import xss from 'xss-clean';
+import hpp from 'hpp';
 
 declare global {
   namespace Express {
@@ -20,7 +23,7 @@ declare global {
 const app = express();
 
 // 1) GLOBAL MIDDLEWARES
-// Set security HTTP headers
+// Set security HTTP headers. This must be on top of everything
 app.use(helmet());
 
 // Limit requests from same API
@@ -40,6 +43,26 @@ app.use(express.json({ limit: '10kb' }));
 
 // Serving static files
 app.use(express.static(`${__dirname}/public`));
+
+// Data sanitization against NoSQL query injection
+app.use(ExpressMongoSanitize());
+
+// Data sanitization against XSS
+// app.use(xss());
+
+// Prevent parameter pollution
+app.use(
+  hpp({
+    whitelist: [
+      'duration',
+      'ratingsQuantity',
+      'ratingsAverage',
+      'maxGroupSize',
+      'difficulty',
+      'price',
+    ],
+  })
+);
 
 // Third party middleware
 if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));

@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 import AppError from '../utils/appError';
 import sendEmail from '../utils/email';
 import crypto from 'crypto';
+import sanitizeHtml from 'sanitize-html';
 
 const signToken = (id: unknown) => {
   if (!process.env.JWT_SECRET) {
@@ -51,15 +52,19 @@ const createSendToken = (user: User, statusCode: number, res: Response) => {
 
 export const signUp = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
-    const { name, email, password, confirmPassword, passwordChangedAt, role } =
-      req.body;
+    let { name, email, password, confirmPassword } = req.body;
+
+    // Sanitize input
+    name = sanitizeHtml(name);
+    email = sanitizeHtml(email);
+    password = sanitizeHtml(password);
+    confirmPassword = sanitizeHtml(confirmPassword);
+
     const newUser = await User.create({
       name,
       email,
       password,
       confirmPassword,
-      passwordChangedAt,
-      role,
     });
 
     const token = signToken(newUser._id);
